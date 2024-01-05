@@ -13,7 +13,33 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        return response()->json(employee::all());
+        //TODO: Add pagination
+        $employees = employee::query();
+
+        if (request()->has('employee') && request('employee') != 'null') {
+            $employees->where('id', request('employee'));
+        }
+        if (request()->has('role') && request('role') != 'null') {
+            $employees->where('role', request('role'));
+        }
+        if (request()->has('union') && request('union') != 'null') {
+            $employees->where('union', request('union'));
+        }
+        if (request()->has('valid_driver') && request('valid_driver') != 'null') {
+            $employees->where('valid_driver', request('valid_driver'));
+        }
+        if (request()->has('first_name') && request('first_name') != 'null') {
+            $employees->where('first_name', 'like', '%' . request('first_name') . '%');
+        }
+        if (request()->has('middle_name') && request('middle_name') != 'null') {
+            $employees->where('middle_name', 'like', '%' . request('middle_name') . '%');
+        }
+        if (request()->has('last_name') && request('last_name') != 'null') {
+            $employees->where('last_name', 'like', '%' . request('last_name') . '%');
+        }
+
+
+        return response()->json($employees->get(), 200);
     }
 
     /**
@@ -29,6 +55,16 @@ class EmployeeController extends Controller
      */
     public function store(StoreemployeeRequest $request)
     {
+
+        $validated = $request->validate([
+            'first_name' => 'required|max:255',
+            'middle_name' => 'required|max:255',
+            'last_name' => 'required',
+            'photo' => 'required',
+            'role' => 'required',
+            'union' => 'required',
+            'valid_driver' => 'required',
+        ]);
 
         //Store new employee
         $employee = employee::create($request->all());
